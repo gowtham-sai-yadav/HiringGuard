@@ -1,4 +1,5 @@
 {
+  "_TODO_india": "TODO(Member A): project pivoted to INDIAN law on 2026-06-24 (ruleset.json is now Indian). Convert this sample to Indian context: Indian company (Pvt. Ltd.), Indian city/state (e.g. Bengaluru, Karnataka), INR salary, and India-relevant planted violations (caste/community preference, gender-restrictive language, marital/pregnancy inquiry, disability overreach, subjective 'culture fit'). This US content still partially matches the Indian ruleset via shared hints, but should be localized before the demo. — Member C (Harsh)",
   "packet_id": "acme_se_role",
   "company": "Acme Robotics, Inc.",
   "company_size": 240,

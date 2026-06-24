@@ -1,105 +1,106 @@
 {
-  "version": "2026-06-12",
-  "note": "U.S. hiring-compliance ruleset for HireGuard. Citations are real statutes/guidance. category_default is the starting severity; @RiskScorer and @Counsel may adjust based on evidence.",
+  "version": "2026-06-24-IN",
+  "note": "INDIAN hiring-compliance ruleset for HireGuard. Converted from the US ruleset on 2026-06-24 by Member C (Harsh). Citations are real Indian statutes / constitutional articles. category_default is the starting severity; @RiskScorer and @Counsel may adjust based on evidence. TODO(Member B): your seed.py + migrations.sql still reference 'US-FED' as the always-include jurisdiction — change that to 'India-Central'. TODO(Member A): the sample packets and intake.md prompt still use US locations/state codes — convert them to Indian context (INR, Indian cities/states).",
+  "jurisdiction_model": "India: most employment-equality law is Union/Central (applies everywhere). Use 'India-Central' for the always-include set; state codes (e.g. 'KA', 'MH', 'DL', 'TN') for state-specific rules.",
   "rules": [
     {
-      "rule_id": "EEOC-ADEA-AGE",
-      "title": "Age-coded language (ADEA)",
-      "jurisdiction": "Federal",
-      "citation": "Age Discrimination in Employment Act, 29 U.S.C. § 623; EEOC age discrimination guidance",
-      "category_default": "Risk",
-      "applies_to": ["job_posting", "scorecard"],
-      "detection_hints": ["young", "energetic", "recent grad", "recent graduate", "digital native", "new grad", "fresh", "junior-minded", "no more than X years experience", " vibrant "],
-      "recommendation_template": "Remove age-proxy language. Describe required skills/competencies instead of age signals or graduation recency."
-    },
-    {
-      "rule_id": "EEOC-TITLE7-PROTECTED",
-      "title": "Protected-class / gender-coded language (Title VII)",
-      "jurisdiction": "Federal",
-      "citation": "Title VII of the Civil Rights Act of 1964, 42 U.S.C. § 2000e-2",
+      "rule_id": "IND-GENDER-CODED",
+      "title": "Gender-coded or gender-restrictive language",
+      "jurisdiction": "India-Central",
+      "citation": "Constitution of India, Arts. 15 & 16; Code on Wages, 2019, § 3 (no gender discrimination in recruitment and conditions of employment)",
       "category_default": "Critical",
       "applies_to": ["job_posting", "scorecard"],
-      "detection_hints": ["salesman", "he will", "his ", "manpower", "waitress", "Christian values", "preferred gender", "must be male", "must be female", "chairman"],
-      "recommendation_template": "Use neutral terms (e.g. 'salesperson', 'they'). Remove any reference to sex, race, religion, or national origin."
+      "detection_hints": ["male candidates only", "female candidates only", "only boys", "only girls", "male preferred", "female preferred", "salesman", "manpower", "he will", "chairman", "waiter", "good-looking female", "smart girls"],
+      "recommendation_template": "Use gender-neutral language (e.g. 'salesperson', 'they'). Do not restrict applications by sex; recruitment must be gender-neutral under the Code on Wages, 2019."
     },
     {
-      "rule_id": "EEOC-NATL-ORIGIN",
-      "title": "National-origin / English-fluency overreach",
-      "jurisdiction": "Federal",
-      "citation": "Title VII; 29 C.F.R. § 1606.6 (national origin); EEOC English-only / fluency guidance",
+      "rule_id": "IND-PAY-PARITY",
+      "title": "Equal remuneration for same or similar work",
+      "jurisdiction": "India-Central",
+      "citation": "Code on Wages, 2019, §§ 3-4 (equal pay; prohibition of gender discrimination in wages); erstwhile Equal Remuneration Act, 1976, § 4",
       "category_default": "Risk",
-      "applies_to": ["job_posting", "scorecard"],
-      "detection_hints": ["native english speaker", "native speaker", "no accent", "american-born", "english as first language"],
-      "recommendation_template": "Replace 'native English speaker' with a job-related standard such as 'professional written and verbal English proficiency' only where the role requires it."
+      "applies_to": ["job_posting", "comp_band"],
+      "detection_hints": ["different pay for men", "lower salary for women", "male rate", "female rate", "salary as per gender", "pay depends on gender"],
+      "recommendation_template": "Offer the same pay scale for the same or similar work regardless of gender. State a single role-based pay band."
     },
     {
-      "rule_id": "EEOC-ADA-DISABILITY",
-      "title": "Disability / physical-requirement overreach (ADA)",
-      "jurisdiction": "Federal",
-      "citation": "Americans with Disabilities Act, 42 U.S.C. § 12112; 29 C.F.R. § 1630",
+      "rule_id": "IND-CASTE-RELIGION",
+      "title": "Caste, religion, or community-based restriction",
+      "jurisdiction": "India-Central",
+      "citation": "Constitution of India, Arts. 15(1) & 16(2) (no discrimination on grounds of religion, race, caste, sex, place of birth); Scheduled Castes and Scheduled Tribes (Prevention of Atrocities) Act, 1989",
+      "category_default": "Critical",
+      "applies_to": ["job_posting", "scorecard"],
+      "detection_hints": ["brahmin only", "upper caste", "specific community", "hindu only", "muslim only", "christian only", "same community", "caste preferred", "particular religion", "vegetarian household only", "community background"],
+      "recommendation_template": "Remove any caste, religion, or community preference. Selection must be based solely on job-related merit."
+    },
+    {
+      "rule_id": "IND-MATERNITY-MARITAL",
+      "title": "Marital status, pregnancy, or family-planning inquiry",
+      "jurisdiction": "India-Central",
+      "citation": "Maternity Benefit Act, 1961 (as amended 2017); Constitution of India, Art. 15",
+      "category_default": "Critical",
+      "applies_to": ["job_posting", "scorecard"],
+      "detection_hints": ["must not be pregnant", "no marriage plans", "marital status", "family planning", "recently married", "single only", "unmarried only", "no pregnancy", "married women need not apply", "are you planning a family"],
+      "recommendation_template": "Do not ask about marital status, pregnancy, or family plans, and do not use them as hiring criteria."
+    },
+    {
+      "rule_id": "IND-DISABILITY-RPWD",
+      "title": "Disability discrimination / non-essential physical requirements",
+      "jurisdiction": "India-Central",
+      "citation": "Rights of Persons with Disabilities Act, 2016, §§ 20-21 (non-discrimination and equal opportunity in employment)",
       "category_default": "Risk",
       "applies_to": ["job_posting"],
-      "detection_hints": ["must be able to lift", "able-bodied", "no disabilities", "perfect health", "stand for X hours", "no accommodations"],
-      "recommendation_template": "State physical demands only when they are essential job functions, and add that reasonable accommodations are available."
+      "detection_hints": ["able-bodied", "no disabilities", "physically fit", "must be able to lift", "perfect health", "no medical condition", "fully fit", "without any handicap", "no physical impairment"],
+      "recommendation_template": "State physical demands only where essential to the role, and add that reasonable accommodation is provided, as required by the RPwD Act, 2016."
     },
     {
-      "rule_id": "EEOC-CRIM-HISTORY",
-      "title": "Blanket criminal-history exclusion",
-      "jurisdiction": "Federal",
-      "citation": "EEOC Enforcement Guidance on Arrest and Conviction Records (2012); Title VII disparate impact",
+      "rule_id": "IND-TRANSGENDER",
+      "title": "Exclusion of transgender / third-gender applicants",
+      "jurisdiction": "India-Central",
+      "citation": "Transgender Persons (Protection of Rights) Act, 2019, § 3(b) (prohibits discrimination in employment)",
       "category_default": "Risk",
       "applies_to": ["job_posting", "scorecard"],
-      "detection_hints": ["no felonies", "clean record required", "no criminal history", "must pass background with no convictions", "no arrests"],
-      "recommendation_template": "Avoid blanket criminal bars. Use an individualized assessment tied to the nature of the offense and job relevance; check applicable ban-the-box laws."
+      "detection_hints": ["only male or female", "men and women only", "no third gender", "biological male", "biological female"],
+      "recommendation_template": "Allow all gender identities to apply; the Transgender Persons Act, 2019 prohibits employment discrimination based on gender identity."
     },
     {
-      "rule_id": "PAYHIST-SALARY-BAN",
-      "title": "Salary-history inquiry",
-      "jurisdiction": "Multi-state (e.g. CA, NY, MA, CO, WA)",
-      "citation": "CA Labor Code § 432.3(b); NY Labor Law § 194-a; and parallel state salary-history bans",
-      "category_default": "Critical",
-      "applies_to": ["job_posting", "scorecard"],
-      "detection_hints": ["current salary", "salary history", "previous compensation", "what do you currently make", "prior pay", "last salary"],
-      "recommendation_template": "Remove all requests for prior/current pay. Ask for salary expectations only, and post the range instead."
-    },
-    {
-      "rule_id": "PAYTRANS-CA-SB1162",
-      "title": "Salary range disclosure required (California)",
-      "jurisdiction": "California",
-      "citation": "CA Labor Code § 432.3 (SB 1162, eff. 2023) — employers with 15+ employees must include pay scale in postings",
-      "category_default": "Critical",
-      "applies_to": ["job_posting", "comp_band"],
-      "detection_hints": ["__missing_salary_range__"],
-      "recommendation_template": "Add the position's salary range (min–max) to the posting. Required for CA employers with 15+ employees."
-    },
-    {
-      "rule_id": "PAYTRANS-NY-LL194B",
-      "title": "Salary range disclosure required (New York)",
-      "jurisdiction": "New York",
-      "citation": "NY Labor Law § 194-b (eff. Sept 2023) — good-faith min/max compensation range in postings",
-      "category_default": "Critical",
-      "applies_to": ["job_posting", "comp_band"],
-      "detection_hints": ["__missing_salary_range__"],
-      "recommendation_template": "Include a good-faith minimum and maximum salary/hourly range; required for NY employers with 4+ employees."
-    },
-    {
-      "rule_id": "PAYTRANS-CO-EPEWA",
-      "title": "Compensation + benefits disclosure (Colorado)",
-      "jurisdiction": "Colorado",
-      "citation": "CO Equal Pay for Equal Work Act, C.R.S. § 8-5-201; 7 CCR 1103-13",
+      "rule_id": "IND-HIV-MEDICAL",
+      "title": "Health / HIV status / intrusive medical-test requirement",
+      "jurisdiction": "India-Central",
+      "citation": "HIV and AIDS (Prevention and Control) Act, 2017, § 3 (prohibits discrimination); general medical-privacy norms",
       "category_default": "Risk",
-      "applies_to": ["job_posting", "comp_band"],
-      "detection_hints": ["__missing_salary_range__", "__missing_benefits__"],
-      "recommendation_template": "Disclose the rate/range of pay AND a general description of benefits and other compensation; required for CO postings."
+      "applies_to": ["job_posting", "scorecard"],
+      "detection_hints": ["hiv test", "hiv negative", "medical fitness certificate", "no health issues", "pre-employment medical", "disclose medical history", "free from disease", "blood test required"],
+      "recommendation_template": "Do not require HIV testing or broad medical disclosures. Limit any medical check to bona-fide, role-essential fitness requirements."
     },
     {
-      "rule_id": "EEOC-DISPARATE-SUBJECTIVE",
+      "rule_id": "IND-AGE-BAR",
+      "title": "Arbitrary age bar or age-coded language",
+      "jurisdiction": "India-Central",
+      "citation": "Constitution of India, Art. 14 (protection against arbitrariness); note: India has no general private-sector age-discrimination statute, so this is treated as a fairness / best-practice risk",
+      "category_default": "Risk",
+      "applies_to": ["job_posting", "scorecard"],
+      "detection_hints": ["below 30 years", "age limit", "young", "energetic", "fresh graduate only", "recent grad", "youngsters", "under 35", "max age", "digital native", "early twenties"],
+      "recommendation_template": "Avoid arbitrary age limits or age-coded words; describe required skills and experience instead."
+    },
+    {
+      "rule_id": "IND-DOMICILE-LANGUAGE",
+      "title": "Domicile, region, or native-language restriction",
+      "jurisdiction": "India-Central",
+      "citation": "Constitution of India, Art. 16(2) (no discrimination on grounds of residence/place of birth for State employment); fairness norm for private employers",
+      "category_default": "Risk",
+      "applies_to": ["job_posting", "scorecard"],
+      "detection_hints": ["locals only", "domicile required", "native speaker", "must be from", "local candidates only", "mother tongue", "only from this state", "regional preference"],
+      "recommendation_template": "Replace blanket 'locals only' / native-language demands with the actual job-related language proficiency the role requires."
+    },
+    {
+      "rule_id": "IND-SUBJECTIVE-CRITERIA",
       "title": "Subjective scorecard criteria with disparate-impact risk",
-      "jurisdiction": "Federal",
-      "citation": "Title VII disparate-impact doctrine, 42 U.S.C. § 2000e-2(k); Griggs v. Duke Power Co. (1971)",
+      "jurisdiction": "India-Central",
+      "citation": "Constitution of India, Art. 14 (equality and non-arbitrariness in selection); general fairness principles",
       "category_default": "Gap",
       "applies_to": ["scorecard"],
-      "detection_hints": ["culture fit", "personality fit", "likeability", "gut feel", "one of us", "looks the part", "vibe"],
+      "detection_hints": ["culture fit", "personality fit", "likeability", "gut feel", "one of us", "family-like", "looks the part", "vibe", "feel like one of us"],
       "recommendation_template": "Replace subjective 'culture fit' criteria with job-related, behaviorally-anchored competencies applied uniformly to all candidates."
     }
   ]

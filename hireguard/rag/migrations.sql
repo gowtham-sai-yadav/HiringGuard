@@ -16,10 +16,14 @@ CREATE INDEX IF NOT EXISTS audit_memos_approved_at_idx ON audit_memos (approved_
 -- pgvector extension provides the `vector` type.
 CREATE EXTENSION IF NOT EXISTS vector;
 
+-- TODO(Member B): project pivoted to INDIAN law on 2026-06-24 (ruleset.json is
+-- now Indian). The always-include jurisdiction below is hardcoded as 'US-FED' in
+-- match_rules() — change it to 'India-Central'. State codes are now Indian
+-- ('KA', 'MH', 'DL', 'TN', ...). — Member C (Harsh)
 CREATE TABLE IF NOT EXISTS rules (
     rule_id            text PRIMARY KEY,
     title              text NOT NULL,
-    jurisdiction       text NOT NULL,        -- 'US-FED', 'CA', 'NY', 'CO', ...
+    jurisdiction       text NOT NULL,        -- 'India-Central', 'KA', 'MH', 'DL', ...
     citation           text NOT NULL,
     summary            text NOT NULL,
     severity_baseline  text NOT NULL,
@@ -61,7 +65,7 @@ AS $$
         r.jurisdiction, r.severity_baseline,
         1 - (r.rule_embedding <=> query_embedding) AS similarity
     FROM rules r
-    WHERE r.jurisdiction IN (match_jurisdiction, 'US-FED')
+    WHERE r.jurisdiction IN (match_jurisdiction, 'India-Central')  -- was 'US-FED' (pre-India pivot)
        OR match_jurisdiction = 'ANY'
     ORDER BY r.rule_embedding <=> query_embedding
     LIMIT match_count;
