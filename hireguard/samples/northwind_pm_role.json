@@ -1,25 +1,24 @@
 {
-  "_TODO_india": "TODO(Member A): project pivoted to INDIAN law on 2026-06-24. Convert this CLEAN sample to Indian context: Indian company, Indian city/state, INR salary, and ensure the posting stays compliant under Indian law (gender-neutral, no caste/community/marital/age bars, mentions reasonable accommodation per RPwD Act). — Member C (Harsh)",
   "packet_id": "northwind_pm_role",
-  "company": "Northwind Analytics, LLC",
-  "company_size": 60,
-  "primary_work_location": "Denver, CO",
+  "company": "Northwind Analytics Pvt. Ltd.",
+  "company_size": 380,
+  "primary_work_location": "Hyderabad, Telangana",
   "_planted_violations_for_demo": [
     "CLEAN PACKET — expected verdict: no Critical issues. May surface at most a minor Gap/Suggestion."
   ],
-  "job_posting": "Product Manager — Northwind Analytics (Denver, CO; hybrid)\n\nNorthwind Analytics is hiring a Product Manager to own the roadmap for our data platform. You'll partner with engineering, design, and customers to define and ship features that matter.\n\nResponsibilities: own product discovery and delivery, write specs, prioritize the backlog, partner cross-functionally.\nRequirements: demonstrated product management experience; strong written and verbal communication; experience with B2B SaaS analytics is a plus. We evaluate candidates on job-related competencies and provide reasonable accommodations throughout the process.\n\nSalary range: $130,000-$165,000 plus equity, medical/dental/vision, 401(k) match, and 20 days PTO. We welcome applicants of all backgrounds and are an equal-opportunity employer.",
+  "job_posting": "Product Manager — Northwind Analytics Pvt. Ltd. (Hyderabad, Telangana; hybrid)\n\nNorthwind Analytics is hiring a Product Manager to own the roadmap for our data platform. The PM will partner with engineering, design, and customers to define and ship features that matter.\n\nResponsibilities: own product discovery and delivery, write specs, prioritise the backlog, partner cross-functionally.\nRequirements: demonstrated product-management experience; strong written and verbal communication; experience with B2B SaaS analytics is a plus. We evaluate candidates strictly on job-related competencies and provide reasonable accommodations as required throughout the process.\n\nNorthwind is an equal-opportunity employer. We welcome applications from people of every background and gender identity, and we evaluate every candidate solely on the merits of their work and demonstrated skills for this role.\n\nCompensation: ₹28,00,000 – ₹38,00,000 per annum (CTC) plus ESOPs, comprehensive health cover for self and family, Provident Fund, gratuity, 24 days of paid leave, and a hybrid work policy.",
   "comp_band": {
-    "currency": "USD",
-    "posted_range_in_listing": { "min": 130000, "max": 165000 },
-    "internal_band_min": 130000,
-    "internal_band_max": 165000,
+    "currency": "INR",
+    "posted_range_in_listing": { "min": 2800000, "max": 3800000 },
+    "internal_band_min": 2800000,
+    "internal_band_max": 3800000,
     "benefits_described_in_listing": true
   },
   "interview_scorecard": {
     "title": "PM Interview Rubric",
     "criteria": [
       { "name": "Product sense", "scale": "1-5", "anchored": true },
-      { "name": "Prioritization & execution", "scale": "1-5", "anchored": true },
+      { "name": "Prioritisation & execution", "scale": "1-5", "anchored": true },
       { "name": "Cross-functional collaboration", "scale": "1-5", "anchored": true },
       { "name": "Communication", "scale": "1-5", "anchored": true }
     ]

@@ -23,9 +23,13 @@ def test_load_acme_sample():
     p = load_packet("hireguard/samples/acme_se_role.json")
     assert isinstance(p, HiringPacket)
     assert p.packet_id == "acme_se_role"
-    assert p.primary_work_location == "San Francisco, CA"
+    # Pivoted to Indian context on 2026-06-24
+    assert p.primary_work_location == "Bengaluru, Karnataka"
+    assert p.comp_band.currency == "INR"
     assert len(p.interview_scorecard.criteria) == 4
-    assert len(p.planted_violations_for_demo or []) == 6
+    # 7 planted violations spanning gender / caste / marital / RPwD / HIV / age / subjective
+    assert len(p.planted_violations_for_demo or []) == 7
+    assert all(v.startswith("IND-") for v in (p.planted_violations_for_demo or []))
 
 
 def test_load_northwind_sample():

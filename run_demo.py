@@ -87,7 +87,26 @@ async def main(args) -> int:
     async with get_checkpointer() as saver:
         graph = build_graph(checkpointer=saver)
         thread_id = f"demo-{packet.packet_id}"
-        config = {"configurable": {"thread_id": thread_id}}
+        # Tags + metadata land in LangSmith — every run is filterable by
+        # packet_id, jurisdiction, surface (cli/streamlit), member, etc.
+        config = {
+            "configurable": {"thread_id": thread_id},
+            "tags": [
+                "hireguard",
+                "surface:cli",
+                f"packet:{packet.packet_id}",
+                f"jurisdiction:{packet.primary_work_location}",
+                "mode:auto" if args.auto_approve else "mode:interactive",
+            ],
+            "metadata": {
+                "thread_id": thread_id,
+                "packet_id": packet.packet_id,
+                "company": packet.company,
+                "company_size": packet.company_size,
+                "jurisdiction": packet.primary_work_location,
+                "surface": "cli",
+            },
+        }
         init_state = PipelineState(packet=packet)
 
         log.info("─── Running pipeline (thread=%s) ───", thread_id)

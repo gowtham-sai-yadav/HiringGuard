@@ -27,6 +27,19 @@ _PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "intake.md"
 SYSTEM_PROMPT = _PROMPT_PATH.read_text()
 
 
+_CURRENCY_SYMBOL = {"INR": "₹", "USD": "$", "GBP": "£", "EUR": "€"}
+
+
+def _fmt_band(currency: str, lo: int | None, hi: int | None) -> str:
+    """Currency-aware salary band rendering. INR-friendly, US-friendly, neutral fallback."""
+    sym = _CURRENCY_SYMBOL.get((currency or "").upper(), "")
+    if lo is None and hi is None:
+        return "not disclosed"
+    if sym:
+        return f"{sym}{lo:,}–{sym}{hi:,}" if (lo and hi) else f"{sym}{lo or hi:,}"
+    return f"{currency} {lo}–{hi}" if (lo and hi) else f"{currency} {lo or hi}"
+
+
 def _packet_to_message(packet: HiringPacket, posting_redacted: str) -> str:
     cb = packet.comp_band
     sc = packet.interview_scorecard
@@ -44,7 +57,7 @@ def _packet_to_message(packet: HiringPacket, posting_redacted: str) -> str:
         f"## Comp Band\n"
         f"  currency: {cb.currency}\n"
         f"  posted_range_in_listing: {cb.posted_range_in_listing}\n"
-        f"  internal_band: ${cb.internal_band_min}–${cb.internal_band_max}\n"
+        f"  internal_band: {_fmt_band(cb.currency, cb.internal_band_min, cb.internal_band_max)}\n"
         f"  benefits_described_in_listing: {cb.benefits_described_in_listing}\n\n"
         f"## Interview Scorecard\n"
         f"  title: {sc.title}\n"

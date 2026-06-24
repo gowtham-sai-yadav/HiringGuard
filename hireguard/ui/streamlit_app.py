@@ -43,10 +43,33 @@ def _run_async(coro):
         loop.close()
 
 
+def _trace_config(packet: HiringPacket, thread_id: str, phase: str) -> dict:
+    """Build the LangGraph run config with LangSmith tags + metadata."""
+    return {
+        "configurable": {"thread_id": thread_id},
+        "tags": [
+            "hireguard",
+            "surface:streamlit",
+            f"phase:{phase}",
+            f"packet:{packet.packet_id}",
+            f"jurisdiction:{packet.primary_work_location}",
+        ],
+        "metadata": {
+            "thread_id": thread_id,
+            "packet_id": packet.packet_id,
+            "company": packet.company,
+            "company_size": packet.company_size,
+            "jurisdiction": packet.primary_work_location,
+            "surface": "streamlit",
+            "phase": phase,
+        },
+    }
+
+
 async def _run_until_pause(packet: HiringPacket, thread_id: str):
     async with get_checkpointer() as saver:
         graph = build_graph(checkpointer=saver)
-        config = {"configurable": {"thread_id": thread_id}}
+        config = _trace_config(packet, thread_id, phase="initial")
         events: list[dict] = []
         interrupt_payload = None
         async for ev in graph.astream(
@@ -65,7 +88,15 @@ async def _run_until_pause(packet: HiringPacket, thread_id: str):
 async def _resume_with(approval: dict, thread_id: str):
     async with get_checkpointer() as saver:
         graph = build_graph(checkpointer=saver)
-        config = {"configurable": {"thread_id": thread_id}}
+        # Resume events correlate to the same trace via thread_id; tag this leg
+        # so the LangSmith UI can show approve/reject/send-back as distinct spans.
+        config = {
+            "configurable": {"thread_id": thread_id},
+            "tags": ["hireguard", "surface:streamlit",
+                     "phase:resume", f"decision:{approval.get('decision','?')}"],
+            "metadata": {"thread_id": thread_id, "phase": "resume",
+                         "decision": approval.get("decision")},
+        }
         events: list[dict] = []
         async for ev in graph.astream(
             Command(resume=approval),

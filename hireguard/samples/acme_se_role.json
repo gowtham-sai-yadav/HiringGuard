@@ -1,23 +1,23 @@
 {
-  "_TODO_india": "TODO(Member A): project pivoted to INDIAN law on 2026-06-24 (ruleset.json is now Indian). Convert this sample to Indian context: Indian company (Pvt. Ltd.), Indian city/state (e.g. Bengaluru, Karnataka), INR salary, and India-relevant planted violations (caste/community preference, gender-restrictive language, marital/pregnancy inquiry, disability overreach, subjective 'culture fit'). This US content still partially matches the Indian ruleset via shared hints, but should be localized before the demo. — Member C (Harsh)",
   "packet_id": "acme_se_role",
-  "company": "Acme Robotics, Inc.",
+  "company": "Acme Robotics Pvt. Ltd.",
   "company_size": 240,
-  "primary_work_location": "San Francisco, CA",
+  "primary_work_location": "Bengaluru, Karnataka",
   "_planted_violations_for_demo": [
-    "EEOC-ADEA-AGE (young, energetic, digital native, recent grad)",
-    "EEOC-NATL-ORIGIN (native English speaker)",
-    "PAYHIST-SALARY-BAN (asks current salary)",
-    "PAYTRANS-CA-SB1162 (CA employer, no salary range in posting)",
-    "EEOC-DISPARATE-SUBJECTIVE (culture fit in scorecard)",
-    "EEOC-ADA-DISABILITY (must be able to lift 40 lbs, no hint of accommodation)"
+    "IND-GENDER-CODED (asks for young male candidates only)",
+    "IND-CASTE-RELIGION (prefers vegetarian Hindu household / 'right cultural background')",
+    "IND-MATERNITY-MARITAL (unmarried preferred; no marriage plans for 2 years)",
+    "IND-DISABILITY-RPWD (must be able-bodied; lift 25 kg without accommodation clause)",
+    "IND-HIV-MEDICAL (compulsory HIV test and full medical fitness check before joining)",
+    "IND-AGE-BAR (under 28; freshers only with 0-2 years experience cap)",
+    "IND-SUBJECTIVE-CRITERIA (unanchored 'culture fit' in scorecard)"
   ],
-  "job_posting": "Software Engineer — Acme Robotics (San Francisco, on-site)\n\nWe're hiring a young, energetic software engineer to join our fast-moving team. The ideal candidate is a recent grad and a digital native who lives and breathes code. You must be a native English speaker with flawless communication. This is an on-site role; you must be able to lift 40 lbs of robotics equipment as needed.\n\nResponsibilities: build and ship backend services, collaborate across teams, move fast.\nRequirements: 0-3 years experience, BS in CS, fluency in Python and Go.\n\nApply now — tell us your current salary so we can calibrate the offer.",
+  "job_posting": "Software Engineer — Acme Robotics Pvt. Ltd. (Bengaluru, Karnataka; on-site)\n\nWe are hiring male candidates only — young, energetic, fresh out of college (0-2 years experience) and below 28 years of age. The ideal applicant is a digital native who lives and breathes code. He will be the founding engineer on our hardware-integration team.\n\nWe prefer Hindu only candidates from a vegetarian household only — the right cultural background and community matter to our founders. Female applicants may also apply, but only if unmarried with no marriage plans for at least the next 2 years.\n\nResponsibilities: build and ship backend services, work closely with the hardware team, and occasionally help lift and reposition 25 kg server racks in the on-site lab — applicants must be able-bodied and in perfect health, with no medical conditions.\n\nBefore joining, all selected candidates must clear a compulsory HIV test and a full medical fitness check arranged by our HR team. Please also share your current and expected CTC in your application.\n\nRequirements: B.Tech or B.E. in CS, fluency in Python and Go, comfort with Linux.",
   "comp_band": {
-    "currency": "USD",
+    "currency": "INR",
     "posted_range_in_listing": null,
-    "internal_band_min": 135000,
-    "internal_band_max": 175000,
+    "internal_band_min": 1200000,
+    "internal_band_max": 1800000,
     "benefits_described_in_listing": false
   },
   "interview_scorecard": {
@@ -25,7 +25,7 @@
     "criteria": [
       { "name": "Coding ability", "scale": "1-5", "anchored": true },
       { "name": "System design", "scale": "1-5", "anchored": true },
-      { "name": "Culture fit", "scale": "1-5", "anchored": false, "note": "Does the candidate feel like one of us?" },
+      { "name": "Culture fit", "scale": "1-5", "anchored": false, "note": "Does the candidate feel like one of us? Would the team enjoy chai with them?" },
       { "name": "Communication", "scale": "1-5", "anchored": true }
     ]
   }

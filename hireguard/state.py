@@ -78,17 +78,46 @@ class HiringPacket(BaseModel):
 
 
 class IntakeFacts(BaseModel):
-    """Output of IntakeAgent (Member A)."""
+    """Output of IntakeAgent (Member A).
 
-    jurisdiction: str  # e.g. "CA", "NY", "Remote-US"
+    Schema is Indian-law-aware (project pivoted to Indian compliance on
+    2026-06-24). The legacy US-only boolean fields are kept with default-False
+    so older code paths and tests keep working — they are simply unused in the
+    Indian context.
+
+    All `*_phrases` / `*_signals` lists carry EXACT quotes lifted from the
+    packet so the Policy agent can cite them as evidence — never paraphrase.
+    """
+
+    # Jurisdiction code. India: state codes (e.g. 'KA', 'MH', 'DL', 'TN', 'KL',
+    # 'GJ', 'TG', 'UP', 'WB', 'RJ', 'PB', 'AP'); pan-India / Union law: 'India-Central';
+    # remote-India: 'India-Remote'; non-Indian: 'INTERNATIONAL'; unclear: 'UNKNOWN'.
+    jurisdiction: str
+
+    # Universal data points (apply in any jurisdiction).
     pay_range_disclosed: bool
     benefits_disclosed: bool
-    salary_history_question_present: bool
-    age_coded_phrases: list[str] = []
-    criminal_history_question_present: bool
     scorecard_question_count: int
     subjective_scorecard_criteria: list[str] = []
-    # Set by the input-validator / PII guard, not by the LLM
+    age_coded_phrases: list[str] = []  # IND-AGE-BAR (weak) + general litigation risk
+
+    # ── Indian-law signals — these are the rule-mapped fields the Policy node uses ─
+    # Each list holds exact phrases lifted verbatim from the packet (max ~10 each).
+    gender_restrictive_phrases: list[str] = []          # IND-GENDER-CODED + IND-TRANSGENDER
+    caste_or_community_signals: list[str] = []          # IND-CASTE-RELIGION
+    marital_or_pregnancy_signals: list[str] = []        # IND-MATERNITY-MARITAL
+    medical_or_hiv_test_signals: list[str] = []         # IND-HIV-MEDICAL
+    non_essential_physical_requirements: list[str] = [] # IND-DISABILITY-RPWD
+    domicile_or_language_restriction: list[str] = []    # IND-DOMICILE-LANGUAGE
+
+    # ── Deprecated US-only fields (kept for back-compat; unused under Indian law) ──
+    # Indian law has no direct equivalent of US salary-history bans or ban-the-box.
+    # Keep these so the older intake prompt and tests still load; default to False
+    # in the Indian flow.
+    salary_history_question_present: bool = False  # deprecated (US-only)
+    criminal_history_question_present: bool = False  # deprecated (US-only)
+
+    # Set by the input-validator / PII guard, not by the LLM.
     pii_redacted_labels: list[str] = []
     injection_attempt_detected: bool = False
     notes: str = ""

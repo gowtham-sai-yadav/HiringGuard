@@ -25,6 +25,15 @@ from pathlib import Path
 
 from hireguard.state import Finding, HiringPacket, ScoredFinding
 
+try:
+    from langsmith import traceable
+except ImportError:  # pragma: no cover
+
+    def traceable(*_args, **_kwargs):  # type: ignore[no-redef]
+        def _wrap(fn):
+            return fn
+        return _wrap
+
 _RULESET_PATH = Path(__file__).resolve().parent.parent / "rag" / "ruleset.json"
 
 # severity label → inclusive (min, max) exposure_score band.
@@ -43,11 +52,13 @@ def known_rule_ids() -> frozenset[str]:
     return frozenset(r["rule_id"] for r in raw.get("rules", []))
 
 
+@traceable(name="validate_rule_id_exists", run_type="tool", tags=["guardrail", "rule-id"])
 def validate_rule_id_exists(rule_id: str) -> bool:
     """Guardrail #1 — reject rule_ids the system invented."""
     return rule_id in known_rule_ids()
 
 
+@traceable(name="validate_severity_score_consistent", run_type="tool", tags=["guardrail", "scoring"])
 def validate_severity_score_consistent(sf: ScoredFinding) -> bool:
     """Guardrail #2 — severity label must agree with the exposure band."""
     band = SEVERITY_BANDS.get(sf.severity)
@@ -74,6 +85,7 @@ def _packet_haystack(packet: HiringPacket) -> str:
     return _normalize(" ".join(parts))
 
 
+@traceable(name="validate_evidence_quote_in_packet", run_type="tool", tags=["guardrail", "evidence"])
 def validate_evidence_quote_in_packet(finding: Finding, packet: HiringPacket) -> bool:
     """Guardrail #3 — the evidence_quote must appear in the packet text.
 
