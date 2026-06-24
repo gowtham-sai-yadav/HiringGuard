@@ -1,0 +1,26 @@
+{
+  "packet_id": "clean_control",
+  "company": "Evergreen Data Co.",
+  "company_size": 85,
+  "primary_work_location": "Austin, TX",
+  "_planted_violations_for_demo": [
+    "CLEAN PACKET — expected verdict: no Critical issues."
+  ],
+  "job_posting": "Data Analyst — Evergreen Data Co. (Austin, TX; hybrid)\n\nEvergreen Data is hiring a Data Analyst to support our analytics team. You'll build dashboards, run analyses, and partner with stakeholders to inform decisions.\n\nResponsibilities: analyze datasets, build reports, collaborate cross-functionally.\nRequirements: demonstrated experience with SQL and a BI tool; strong written and verbal communication. We evaluate candidates on job-related competencies and provide reasonable accommodations throughout the hiring process.\n\nSalary range: $95,000-$120,000 plus equity, medical/dental/vision, 401(k) match, and 18 days PTO. We are an equal-opportunity employer and welcome applicants of all backgrounds.",
+  "comp_band": {
+    "currency": "USD",
+    "posted_range_in_listing": { "min": 95000, "max": 120000 },
+    "internal_band_min": 95000,
+    "internal_band_max": 120000,
+    "benefits_described_in_listing": true
+  },
+  "interview_scorecard": {
+    "title": "Data Analyst Interview Rubric",
+    "criteria": [
+      { "name": "Analytical reasoning", "scale": "1-5", "anchored": true },
+      { "name": "SQL & tooling proficiency", "scale": "1-5", "anchored": true },
+      { "name": "Communication", "scale": "1-5", "anchored": true },
+      { "name": "Stakeholder collaboration", "scale": "1-5", "anchored": true }
+    ]
+  }
+}

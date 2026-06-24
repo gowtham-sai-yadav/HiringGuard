@@ -1,0 +1,5 @@
+{
+  "packet_id": "malformed_missing_fields",
+  "company": "Broken Input Inc.",
+  "_comment": "Intentionally invalid: missing required `primary_work_location`, `job_posting`, `comp_band`, and `interview_scorecard`. HiringPacket.model_validate MUST raise a ValidationError — this asserts the input guardrail."
+}
