@@ -16,10 +16,9 @@ CREATE INDEX IF NOT EXISTS audit_memos_approved_at_idx ON audit_memos (approved_
 -- pgvector extension provides the `vector` type.
 CREATE EXTENSION IF NOT EXISTS vector;
 
--- TODO(Member B): project pivoted to INDIAN law on 2026-06-24 (ruleset.json is
--- now Indian). The always-include jurisdiction below is hardcoded as 'US-FED' in
--- match_rules() — change it to 'India-Central'. State codes are now Indian
--- ('KA', 'MH', 'DL', 'TN', ...). — Member C (Harsh)
+-- India scope (pivoted 2026-06-24): always-include jurisdiction is 'India-Central'
+-- (set in match_rules() below); state codes are Indian ('KA', 'MH', 'DL', 'TN', ...).
+-- seed.py normalizes each rule's prose jurisdiction to these codes. — Member B (Gowtham)
 CREATE TABLE IF NOT EXISTS rules (
     rule_id            text PRIMARY KEY,
     title              text NOT NULL,
