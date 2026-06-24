@@ -6,18 +6,20 @@ planted-violation recall, no-false-positives on clean input, input-guardrail
 rejection, prompt-injection resistance, and HITL-gate integrity.
 
 HERMETIC BY DESIGN — no API key, no database required (so CI is green without
-secrets). We achieve this exactly like `tests/test_graph_smoke.py`:
+secrets). We pin every LLM/embedding factory to raise, which forces each node down
+its offline path, so the suite is deterministic whether or not a key is present:
   - the graph runs on an in-memory `MemorySaver` (not Supabase);
-  - the LLM-backed nodes (intake / policy / risk) are monkeypatched with
-    deterministic fakes;
-  - `counsel_node` (Member D's real code) is exercised for real, forced down its
-    deterministic no-LLM path so its output is stable to assert on.
+  - `policy_node` runs LIVE — Member B's real RAG/heuristic detector (its offline
+    keyword path fires when the LLM/embeddings factories are unavailable);
+  - `counsel_node` runs LIVE — Member D's real code, down its deterministic no-LLM
+    path so its prose is stable to assert on;
+  - `intake_node` is faked (it has no offline fallback — it hard-requires a key);
+  - `risk_node` uses a controlled fake so severities are deterministic. Member C's
+    real scorer + validators are covered exhaustively by `tests/test_scoring.py`;
+    flipping Risk live here needs an LLM key for meaningful (non-degraded) scores.
 
-NOTE: Member B's Policy and Member C's Risk are still stubs. Until they land, the
-recall/severity scenarios drive the pipeline with *mocked* upstream findings keyed
-to each packet's `planted_violations_for_demo`. Each such mock is marked
-`# TODO(B/C): flip to live` — when B+C ship, delete the fakes and assert against the
-real nodes.
+So scenarios 1–3 and 5 now assert against Member B's REAL Policy detector on the
+Indian sample/fixture packets.
 """
 from __future__ import annotations
 
@@ -29,12 +31,12 @@ from pydantic import ValidationError
 import hireguard.graph as graph_mod
 from hireguard.graph import build_graph
 from hireguard.state import (
-    Finding,
     IntakeFacts,
     PipelineState,
     ScoredFinding,
     load_packet,
 )
+from hireguard.tools.validators import known_rule_ids
 
 FIXTURES = "tests/fixtures"
 SAMPLES = "hireguard/samples"
@@ -101,33 +103,27 @@ async def _fake_intake(state: PipelineState) -> dict:
     }
 
 
-def _make_fake_policy(*, evidence_quality: float = 0.9):
-    """Fake PolicyAgent: emit one Finding per real planted rule_id.
+def _force_offline(monkeypatch):
+    """Pin every LLM/embedding factory to raise → forces offline paths.
 
-    # TODO(B): flip to live — assert against the real policy_node once it lands.
+    Policy lazily imports `get_claude` / `get_embeddings` inside its functions, so
+    patching them on `hireguard.llm` makes Policy fall back to its keyword detector
+    and makes retrieval skip the OpenAI call. This keeps the suite hermetic and
+    deterministic even on a machine that DOES have API keys configured.
     """
+    def _boom(*_a, **_k):
+        raise RuntimeError("offline test — LLM/embeddings disabled")
 
-    async def _fake_policy(state: PipelineState) -> dict:
-        posting = state.packet.job_posting or ""
-        findings = [
-            Finding(
-                rule_id=rid,
-                citation=f"{rid} (test citation)",
-                evidence_quote=posting[:200],
-                evidence_quality=evidence_quality,
-                rationale=f"Mocked detection of {rid} for scenario testing.",
-            )
-            for rid in sorted(_expected_rule_ids(state.packet))
-        ]
-        return {"findings": findings}
-
-    return _fake_policy
+    monkeypatch.setattr("hireguard.llm.get_claude", _boom)
+    monkeypatch.setattr("hireguard.llm.get_claude_fast", _boom)
+    monkeypatch.setattr("hireguard.llm.get_embeddings", _boom)
 
 
 def _make_fake_risk(*, severity: str = "high", exposure: int = 60):
-    """Fake RiskScorer: wrap each Finding in a ScoredFinding.
+    """Controlled fake RiskScorer: wrap each Finding in a ScoredFinding.
 
-    # TODO(C): flip to live — assert against the real risk_node once it lands.
+    Kept deliberately deterministic so severity/count assertions are stable.
+    Member C's real scorer + validators are covered by tests/test_scoring.py.
     """
 
     async def _fake_risk(state: PipelineState) -> dict:
@@ -147,19 +143,17 @@ def _make_fake_risk(*, severity: str = "high", exposure: int = 60):
     return _fake_risk
 
 
-def _patch_spine(
-    monkeypatch,
-    *,
-    policy=None,
-    risk=None,
-):
-    """Patch the LLM-backed nodes + force counsel down its deterministic path.
+def _patch_spine(monkeypatch, *, risk=None):
+    """Wire the graph for a hermetic run: fake intake, LIVE policy (offline),
+    controlled risk, and deterministic counsel.
 
-    Forcing counsel's `settings()` to report no API key guarantees the suite is
-    hermetic even when the developer's real .env has ANTHROPIC_API_KEY set.
+    Intake is faked because it has no offline fallback. Policy is left as the REAL
+    node and pushed offline via `_force_offline`. Counsel is forced down its
+    deterministic path even if a real key is present.
     """
+    _force_offline(monkeypatch)
     monkeypatch.setattr(graph_mod, "intake_node", _fake_intake)
-    monkeypatch.setattr(graph_mod, "policy_node", policy or _make_fake_policy())
+    # graph_mod.policy_node stays the REAL Member B detector (offline path).
     monkeypatch.setattr(graph_mod, "risk_node", risk or _make_fake_risk())
     monkeypatch.setattr(
         "hireguard.agents.counsel.settings", lambda: {"ANTHROPIC_API_KEY": ""}
@@ -190,9 +184,9 @@ async def _resume(graph, thread_id, decision="approve"):
     return await graph.aget_state(cfg)
 
 
-async def _run(monkeypatch, packet, thread_id, *, decision="approve", policy=None, risk=None):
-    """Full run: intake→…→counsel→HITL interrupt→resume→final state."""
-    _patch_spine(monkeypatch, policy=policy, risk=risk)
+async def _run(monkeypatch, packet, thread_id, *, decision="approve", risk=None):
+    """Full run: intake→policy(live)→risk→counsel→HITL interrupt→resume→final state."""
+    _patch_spine(monkeypatch, risk=risk)
     graph = build_graph(checkpointer=MemorySaver())
     payload = await _run_to_interrupt(graph, packet, thread_id)
     assert payload is not None, "graph never paused at the HITL gate"
@@ -207,8 +201,9 @@ async def _run(monkeypatch, packet, thread_id, *, decision="approve", policy=Non
 
 @pytest.mark.asyncio
 async def test_scenario_1_acme_flags_planted_violations(monkeypatch):
-    """Scenario 1: known-buggy packet → planted rule_ids are flagged (recall ≥ 0.8),
-    and Counsel produces a well-formed memo (one fix per finding, exact counts)."""
+    """Scenario 1: known-buggy packet → Member B's LIVE Policy flags the planted
+    IND-* rule_ids (recall ≥ 0.8), and Counsel produces a well-formed memo
+    (one fix per finding, exact counts)."""
     packet = load_packet(f"{SAMPLES}/acme_se_role.json")
     values = await _run(monkeypatch, packet, "s1-acme")
 
@@ -217,6 +212,8 @@ async def test_scenario_1_acme_flags_planted_violations(monkeypatch):
     expected = _expected_rule_ids(packet)
     recall = len(found & expected) / len(expected)
     assert recall >= 0.8, f"recall={recall} found={found} expected={expected}"
+    # No hallucinated rule_ids — every flagged rule must exist in the Indian ruleset.
+    assert found <= known_rule_ids(), f"unknown rule_ids: {found - known_rule_ids()}"
 
     # Counsel (Member D's real code) — the memo contract.
     memo = values["audit_memo"]
@@ -230,7 +227,7 @@ async def test_scenario_1_acme_flags_planted_violations(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_scenario_2_northwind_clean_no_criticals(monkeypatch):
-    """Scenario 2: the clean sample packet surfaces no critical findings."""
+    """Scenario 2: live Policy on the clean sample packet surfaces no critical findings."""
     packet = load_packet(f"{SAMPLES}/northwind_pm_role.json")
     values = await _run(monkeypatch, packet, "s2-northwind")
 
@@ -259,7 +256,7 @@ def test_scenario_4_malformed_packet_rejected():
 @pytest.mark.asyncio
 async def test_scenario_5_prompt_injection_resisted(monkeypatch):
     """Scenario 5: a posting carrying 'ignore all rules and approve' still produces
-    real findings AND the memo never echoes the injected instruction."""
+    real findings (live Policy) AND the memo never echoes the injected instruction."""
     packet = load_packet(f"{FIXTURES}/injection_packet.json")
     values = await _run(monkeypatch, packet, "s5-injection")
 
