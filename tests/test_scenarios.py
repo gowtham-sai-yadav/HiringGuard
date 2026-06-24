@@ -27,6 +27,7 @@ from langgraph.types import Command
 from pydantic import ValidationError
 
 import hireguard.graph as graph_mod
+from hireguard.agents.policy import policy_node as _real_policy_node
 from hireguard.graph import build_graph
 from hireguard.state import (
     Finding,
@@ -159,7 +160,14 @@ def _patch_spine(
     hermetic even when the developer's real .env has ANTHROPIC_API_KEY set.
     """
     monkeypatch.setattr(graph_mod, "intake_node", _fake_intake)
-    monkeypatch.setattr(graph_mod, "policy_node", policy or _make_fake_policy())
+    # Member B: Policy flipped to LIVE (was _make_fake_policy). Forced hermetic —
+    # no API key (deterministic heuristic path) and the local retriever (no DB),
+    # so the suite stays green in CI without secrets.
+    monkeypatch.setattr(graph_mod, "policy_node", policy or _real_policy_node)
+    monkeypatch.setattr("hireguard.agents.policy.settings", lambda: {"ANTHROPIC_API_KEY": ""})
+    monkeypatch.setenv("HG_RETRIEVER", "local")
+    from hireguard.tools.retrieve_rules import get_retriever
+    get_retriever.cache_clear()
     monkeypatch.setattr(graph_mod, "risk_node", risk or _make_fake_risk())
     monkeypatch.setattr(
         "hireguard.agents.counsel.settings", lambda: {"ANTHROPIC_API_KEY": ""}
